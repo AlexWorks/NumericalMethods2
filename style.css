@@ -1,0 +1,21 @@
+#functionPlot {
+
+}
+
+.results-table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.results-table {
+    float: right;
+}
+
+.wrapper {
+
+}
+
+* {
+    font-family: Consolas, sans-serif;
+}
