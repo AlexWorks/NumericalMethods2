@@ -2,7 +2,7 @@
 
 }
 
-.results-table, th, td {
+.results-table, .table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
     text-align: center;

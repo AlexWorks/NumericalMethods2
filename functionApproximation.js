@@ -1,5 +1,5 @@
 function func(x) {
-    return Math.sqrt(x) + Math.sin(x);
+    return 1 / (x * Math.sqrt(5 * x * x + x));
 }
 
 function createValuesTable (n, lower, upper, func) {
@@ -181,6 +181,64 @@ function writePoly(poly) {
     }
 }
 
+function evaluateIntegral(func, a , b,  n, table) {
+    const r = 8 / 28350;
+    const coefficients = [989, 5888,-928,10496,-4540,10496,-928,5888,989];
+    let integral = 0;
+    let step = (b - a) / (n * 8);
+
+    for (let i = 0; i < table.length - 1; i++) {
+        let elementaryIntegral = 0;
+        let x = table[i][0];
+
+        for (let j = 0; j < 9; j++) {
+            elementaryIntegral +=  coefficients[j] * func(x + step * j);
+        }
+
+        integral += step * r * elementaryIntegral;
+    }
+
+    return integral;
+}
+
+function solvePrecise(a, b) {
+    return ((-2 * Math.sqrt(5 * b * b + b) / b) - (-2 * Math.sqrt(5 * a * a + a) / a));
+}
+
+function buildDiagram(func, a , b) {
+    let res = [];
+    for (let i = 1; i < 50; i++) {
+        let table = createValuesTable(i, a, b, approximated);
+        res.push({
+            L : i,
+            I : evaluateIntegral(func, a , b,  i, table)
+        })
+    }
+
+    AmCharts.makeChart( "chartdiv", {
+        "type": "serial",
+        "theme": "light",
+        "columnWidth": 1,
+        "dataProvider": res,
+        "graphs": [{
+            "fillColors": "#c55",
+            "fillAlphas": 0.9,
+            "lineColor": "#fff",
+            "lineAlpha": 0.7,
+            "type": "column",
+            "valueField": "I"
+        }],
+        "categoryField": "L",
+        "categoryAxis": {
+            "startOnAxis": true,
+            "title": "L"
+        },
+        "valueAxes": [{
+            "title": "I"
+        }]
+    });
+}
+
 /*
  *   For drawing plots
  * */
@@ -329,11 +387,11 @@ Plot.prototype.transformContext = function() {
 
 console.log(func(0));
 
-const lowerBound = 0;
-const upperBound = 6;
-const n = 20;
+const lowerBound = 1;
+const upperBound = 3;
+const n = 8;
 
-let table = createValuesTable(n,lowerBound,upperBound, func);
+let table = createValuesTable(8,lowerBound,upperBound, func);
 
 console.log(table);
 
@@ -346,10 +404,10 @@ let approximated = getValueFromPoly.bind(null, poly);
 
 let plot = new Plot({
     unitsPerTick: 1,
-    minX: -10,
-    maxX: 10,
-    minY: -10,
-    maxY: 10,
+    minX: -1,
+    maxX: 2,
+    minY: -1,
+    maxY: 2,
     canvas: 'functionPlot'
 });
 
@@ -357,6 +415,9 @@ let data = getTableData(approximated, func, n, lowerBound, upperBound);
 buildTable(data);
 writePoly(poly);
 
+console.log(evaluateIntegral(approximated, 1, 3, n, table) - solvePrecise(1,3));
+
+buildDiagram(approximated, 1, 3);
 
 
 plot.drawEquation( func, 'green', 1.5);
